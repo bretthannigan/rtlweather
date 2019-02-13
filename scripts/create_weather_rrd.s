@@ -1,31 +1,16 @@
 #!/bin/bash
-# Create rrd database for weather measurement
-# One average value for each quarter hour (900 s) of 2 * 8 + 5 sensors 
-# Average 1: 960 samples == 10 days
-# Average/Min/Max 2: 1 sample per day for 3600 days 
+# One sample per 5 minutes (900 s).
 rrdtool create weather.rrd --step 900 \
-DS:temps1:GAUGE:1200:-40:50 \
-DS:temps2:GAUGE:1200:-40:50 \
-DS:temps3:GAUGE:1200:-40:50 \
-DS:temps4:GAUGE:1200:-40:50 \
-DS:temps5:GAUGE:1200:-40:50 \
-DS:temps6:GAUGE:1200:-40:50 \
-DS:temps7:GAUGE:1200:-40:50 \
-DS:temps8:GAUGE:1200:-40:50 \
-DS:hums1:GAUGE:1200:0:100 \
-DS:hums2:GAUGE:1200:0:100 \
-DS:hums3:GAUGE:1200:0:100 \
-DS:hums4:GAUGE:1200:0:100 \
-DS:hums5:GAUGE:1200:0:100 \
-DS:hums6:GAUGE:1200:0:100 \
-DS:hums7:GAUGE:1200:0:100 \
-DS:hums8:GAUGE:1200:0:100 \
-DS:temps9:GAUGE:1200:-40:50 \
-DS:hums9:GAUGE:1200:0:100 \
-DS:winds9:GAUGE:1200:0:200 \
-DS:rains9:DERIVE:1200:0:0.027 \
-DS:israins9:GAUGE:1200:0:1 \
-RRA:AVERAGE:0.5:1:960 \
-RRA:MIN:0.5:96:3600 \
-RRA:MAX:0.5:96:3600 \
-RRA:AVERAGE:0.5:96:3600
+DS:temperature:GAUGE:1200:-40:50 \
+DS:humidity:GAUGE:1200:0:100 \
+DS:wind_speed:GAUGE:1200:0:30 \
+DS:wind_gust:GAUGE:1200:0:30 \
+DS:wind_direction:GAUGE:1200:0:359 \
+DS:rainfall:DCOUNTER:1200:0:100 \
+# Store 105,120 samples (1 year) of data.
+RRA:AVERAGE:0.5:1:105120 \
+# Compute min, average, max over last 12 samples (1 hour)
+# Store 87,600 samples of these data (10 years).
+RRA:MIN:0.5:12:87600 \
+RRA:MAX:0.5:12:387600 \
+RRA:AVERAGE:0.5:12:87600
