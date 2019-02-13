@@ -9,6 +9,7 @@ DS:humidity:GAUGE:1200:0:100 \
 DS:wind_speed:GAUGE:1200:0:30 \
 DS:wind_gust:GAUGE:1200:0:30 \
 DS:wind_direction:GAUGE:1200:0:359 \
+DS:rainfall:DERIVE:1200:0:100 \
 RRA:AVERAGE:0.5:1:105120 \
 RRA:MIN:0.5:12:87600 \
 RRA:MAX:0.5:12:387600 \
