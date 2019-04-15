@@ -1,8 +1,9 @@
 import json
+from time import strptime as strptime
 
 class WeatherData:
     def __init__(self, time=None, model=None, id=None, channel=None, battery=None, mic=None):
-        self.time = time
+        self.time = strptime(time, "%Y-%m-%d %H:%M:%S")
         self.model = model
         self.id = id
         self.channel = channel
@@ -46,6 +47,9 @@ class TemperatureData(WeatherData):
         return mdl == cls._model
 
 def from_json(json_str):
+    """
+    Instantiates a subclass of WeatherData based on the 'model' field of the JSON input string.
+    """
     json_dict = json.loads(json_str)
     for cls in WeatherData.__subclasses__():
         if cls.is_model(json_dict['model']):
