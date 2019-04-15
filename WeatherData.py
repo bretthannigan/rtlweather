@@ -16,18 +16,22 @@ class WindData(WeatherData):
         self.wind_gust = wind_gust
         self.wind_direction = wind_direction
 
+    _model = "AlectoV1 Wind Sensor"
+
     @classmethod
     def is_model(cls, mdl):
-        return mdl == "AlectoV1 Wind Sensor"
+        return mdl == cls._model
 
 class RainData(WeatherData):
     def __init__(self, rain_total=None, *args, **kwargs):
         super(RainData, self).__init__(*args, **kwargs)
         self.rain_total = rain_total
     
+    _model = "AlectoV1 Rain Sensor"
+
     @classmethod
     def is_model(cls, mdl):
-        return mdl == "AlectoV1 Rain Sensor"
+        return mdl == cls._model
 
 class TemperatureData(WeatherData):
     def __init__(self, temperature_C=None, humidity=None, *args, **kwargs):
@@ -35,9 +39,11 @@ class TemperatureData(WeatherData):
         self.temperature_C = temperature_C
         self.humidity = humidity
 
+    _model = "AlectoV1 Temperature Sensor"
+
     @classmethod
     def is_model(cls, mdl):
-        return mdl == "AlectoV1 Temperature Sensor"
+        return mdl == cls._model
 
 def from_json(json_str):
     json_dict = json.loads(json_str)
