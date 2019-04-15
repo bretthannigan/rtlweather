@@ -3,7 +3,8 @@ import subprocess
 import time
 import queue
 import json
-import rrdtool
+
+import WeatherData
 
 class PollRTL433(threading.Thread):
     def __init__(self, out_q):
@@ -29,10 +30,17 @@ class PollRTL433(threading.Thread):
         self.stoprequest.set()
         super(PollRTL433, self).join(timeout)
 
-out_q = queue.Queue()
+out_q = queue.LifoQueue()
 rtl_433 = PollRTL433(out_q=out_q)
 rtl_433.start()
 
+while out_q.empty():
+    pass
+
+json_data = out_q.get_nowait()
+test = WeatherData.from_json(json_data[1])
+
 while True:
     if not out_q.empty():
+        time.sleep(5)
         print(out_q.get_nowait())
