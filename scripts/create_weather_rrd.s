@@ -3,7 +3,7 @@
 # Store 105,120 samples (1 year) of data.
 # Compute min, average, max over last 12 samples (1 hour)
 # Store 87,600 samples of these data (10 years).
-rrdtool create weather.rrd --step 900 \
+rrdtool create db/weather.rrd --step 900 \
 DS:temperature:GAUGE:1200:-40:50 \
 DS:humidity:GAUGE:1200:0:100 \
 DS:wind_speed:GAUGE:1200:0:30 \

@@ -3,6 +3,8 @@ import subprocess
 import time
 import queue
 import json
+import rrdtool
+from pathlib import Path
 
 import WeatherData
 
@@ -30,17 +32,51 @@ class PollRTL433(threading.Thread):
         self.stoprequest.set()
         super(PollRTL433, self).join(timeout)
 
-out_q = queue.LifoQueue()
+DB_PATH = Path("/db/weather.rrd")
+BACKUP_PATH = Path("/db/weather_dump.xml")
+
+if not my_file.is_file():
+    rrdtool.create(
+        DB_PATH.as_posix(),
+        "--start", "now",
+        "--step", "900",
+        "DS:temperature:GAUGE:1200:-40:50",
+        "DS:humidity:GAUGE:1200:0:100",
+        "DS:wind_speed:GAUGE:1200:0:30",
+        "DS:wind_gust:GAUGE:1200:0:30",
+        "DS:wind_direction:GAUGE:1200:0:359",
+        "DS:rainfall:DERIVE:1200:0:100",
+        "RRA:AVERAGE:0.5:1:105120",
+        "RRA:MIN:0.5:12:87600",
+        "RRA:MAX:0.5:12:87600",
+        "RRA:AVERAGE:0.5:12:87600"
+    )
+else:
+    rrdtool.create(
+        DB_PATH.as_posix(),
+        "--step", "900",
+        "--source", DB_PATH.as_posix(),
+        
+    )
+
+out_q = queue.Queue(256)
 rtl_433 = PollRTL433(out_q=out_q)
 rtl_433.start()
 
 while out_q.empty():
     pass
 
-json_data = out_q.get_nowait()
-test = WeatherData.from_json(json_data[1])
+#json_data = out_q.get_nowait()
+#test = WeatherData.from_json(json_data[1])
 
 while True:
-    if not out_q.empty():
-        time.sleep(5)
-        print(out_q.get_nowait())
+    while not out_q.empty():
+        test = out_q.get_nowait()
+        weather_datum = WeatherData.from_json(test[1])
+        if isinstance(weather_datum, WeatherData.WindData):
+
+        elif isinstance(weather_datum, WeatherData.RainData):
+
+        elif isinstance(weather_datum, WeatherData.TemperatureData):
+
+    time.sleep(5)
