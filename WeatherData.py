@@ -1,9 +1,13 @@
 import json
-from time import strptime as strptime
+from datetime import datetime
+from tzlocal import get_localzone
 
 class WeatherData:
     def __init__(self, time=None, model=None, id=None, channel=None, battery=None, mic=None):
-        self.time = strptime(time, "%Y-%m-%d %H:%M:%S")
+        if time is not None:
+            self.time = datetime.strptime(time, "%Y-%m-%d %H:%M:%S").astimezone(get_localzone())
+        else:
+            self.time = None
         self.model = model
         self.id = id
         self.channel = channel
@@ -12,6 +16,18 @@ class WeatherData:
 
     _model = None
     _id = None
+
+    def to_rrd(self, names):
+        rrd_args = ["--template"]
+        rrd_args.append(":".join(names))
+        if self.time is not None:
+            rrd_val = str(self.time.timestamp())
+        else:
+            rrd_val = "N"
+        for name in names:
+            rrd_val = rrd_val + ":" + str(getattr(self, name))
+        rrd_args.append(rrd_val)
+        return rrd_args
 
     @classmethod
     def is_model(cls, mdl):
@@ -31,6 +47,10 @@ class WindData(WeatherData):
     _model = "AlectoV1 Wind Sensor"
     _id = 98
 
+    def to_rrd(self):
+        property_names = ["wind_speed", "wind_gust", "wind_direction"]
+        return super(WindData, self).to_rrd(property_names)
+
 class RainData(WeatherData):
     def __init__(self, rain_total=None, *args, **kwargs):
         super(RainData, self).__init__(*args, **kwargs)
@@ -38,6 +58,10 @@ class RainData(WeatherData):
     
     _model = "AlectoV1 Rain Sensor"
     _id = 206
+
+    def to_rrd(self):
+        property_names = ["rain_total"]
+        return super(RainData, self).to_rrd(property_names)
 
 class TemperatureData(WeatherData):
     def __init__(self, temperature_C=None, humidity=None, *args, **kwargs):
@@ -47,6 +71,10 @@ class TemperatureData(WeatherData):
 
     _model = "AlectoV1 Temperature Sensor"
     _id = 98
+
+    def to_rrd(self):
+        property_names = ["temperature_C", "humidity"]
+        return super(TemperatureData, self).to_rrd(property_names)
 
 def from_json(json_str):
     """
