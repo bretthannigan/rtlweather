@@ -29,6 +29,9 @@ class WeatherData:
         rrd_args.append(rrd_val)
         return rrd_args
 
+    def __str__(self):
+        return '{:<25}'.format(str(self.time))
+
     @classmethod
     def is_model(cls, mdl):
         return mdl == cls._model
@@ -51,6 +54,20 @@ class WindData(WeatherData):
         property_names = ["wind_speed", "wind_gust", "wind_direction"]
         return super(WindData, self).to_rrd(property_names)
 
+    def __str__(self):
+        line = super(WindData, self).__str__()
+        line = line + '\t' + type(self).__name__ + '\n' + \
+            '\tWind speed: {:2.2f} m/s\n'.format(self.wind_speed) + \
+            '\tGust speed: {:2.2f} m/s\n'.format(self.wind_gust) + \
+            '\tWind direction: {:<3}\n'.format(self.degrees_to_compass_heading())
+        return line
+
+    def degrees_to_compass_heading(self):
+        CALIBRATION_OFFSET = 0
+        directions = ["N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"]
+        return directions[(int(((self.wind_direction - CALIBRATION_OFFSET)/22.5)+0.5) % 16)]
+
+
 class RainData(WeatherData):
     def __init__(self, rain_total=None, *args, **kwargs):
         super(RainData, self).__init__(*args, **kwargs)
@@ -62,6 +79,12 @@ class RainData(WeatherData):
     def to_rrd(self):
         property_names = ["rain_total"]
         return super(RainData, self).to_rrd(property_names)
+
+    def __str__(self):
+        line = super(RainData, self).__str__()
+        line = line + '\t' + type(self).__name__ + '\n' + \
+            '\tRain total: {:4.2f} mm\n'.format(self.rain_total)
+        return line
 
 class TemperatureData(WeatherData):
     def __init__(self, temperature_C=None, humidity=None, *args, **kwargs):
@@ -75,6 +98,13 @@ class TemperatureData(WeatherData):
     def to_rrd(self):
         property_names = ["temperature_C", "humidity"]
         return super(TemperatureData, self).to_rrd(property_names)
+
+    def __str__(self):
+        line = super(TemperatureData, self).__str__()
+        line = line + '\t' + type(self).__name__ + '\n' + \
+            '\tTemperature: {:2.1f} C\n'.format(self.temperature_C) + \
+            '\tHumidity: {:2.0f}%\n'.format(self.humidity)
+        return line
 
 def from_json(json_str):
     """

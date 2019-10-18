@@ -1,5 +1,6 @@
 from threading import Timer
 
+# From: https://stackoverflow.com/a/38317060
 class RepeatedTimer(object):
     def __init__(self, interval, function, *args, **kwargs):
         self._timer = None
