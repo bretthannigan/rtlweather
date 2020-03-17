@@ -1,0 +1,19 @@
+#!/usr/local/bin/rrdcgi
+ <html>
+ <head><title>Weather Station Data</title></head>
+ <body>
+ <h1>RRDCGI Example Page for <RRD::CV RRD_NAME></h1>
+ <h2>Selection</h2>
+ <form><INPUT NAME=RRD_NAME TYPE=RADIO VALUE=roomA> Room A,
+       <INPUT NAME=RRD_NAME TYPE=RADIO VALUE=roomB> Room B.
+       <INPUT TYPE=SUBMIT></form>
+ <h2>Graph</h2>
+ <p>
+ <RRD::GRAPH <RRD::CV::PATH RRD_NAME>.png --lazy
+          --title "Temperatures for "<RRD::CV::QUOTE RRD_NAME>
+          DEF:cel=<RRD::CV::PATH RRD_NAME>.rrd:exhaust:AVERAGE
+          LINE2:cel#00a000:"D. Celsius">
+
+ </p>
+ </body>
+ </html>
